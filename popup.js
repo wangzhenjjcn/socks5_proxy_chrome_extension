@@ -8,7 +8,7 @@ document.getElementById('toggleProxy').addEventListener('click', async () => {
 
 async function getProxyEnabled() {
   const result = await new Promise((resolve) => {
-    chrome.storage.sync.get([proxyEnabledKey], (result) => {
+    chrome.storage.local.get([proxyEnabledKey], (result) => {
       resolve(result[proxyEnabledKey] || false);
     });
   });
@@ -16,7 +16,7 @@ async function getProxyEnabled() {
 }
 
 function setProxyEnabled(enabled) {
-  chrome.storage.sync.set({ [proxyEnabledKey]: enabled }, () => {
+  chrome.storage.local.set({ [proxyEnabledKey]: enabled }, () => {
     chrome.runtime.sendMessage({ proxyEnabled: enabled });
   });
 }

@@ -1,4 +1,4 @@
-const proxyServer = {
+  const proxyServer = {
     host: 'AAAAA.com',
     port: 12345,
   };
@@ -37,7 +37,7 @@ const proxyServer = {
   
   async function getProxyEnabled() {
     const result = await new Promise((resolve) => {
-      chrome.storage.sync.get(['proxyEnabled'], (result) => {
+      chrome.storage.local.get(['proxyEnabled'], (result) => {
         resolve(result.proxyEnabled || false);
       });
     });
