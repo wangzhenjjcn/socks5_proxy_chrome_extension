@@ -1,5 +1,5 @@
-  const proxyServer = {
-    host: 'AAAAA.com',
+const proxyServer = {
+    host: 'aaaaaaa.com',
     port: 12345,
   };
   
@@ -9,31 +9,49 @@
     }
   });
   
+  function updateIcon(enabled) {
+    const iconPath = enabled ? 'icons/icon_color.png' : 'icons/icon_gray.png';
+    chrome.action.setIcon({ path: iconPath });
+  }
+  
+
   async function setProxy(enabled) {
     if (enabled) {
-      chrome.proxy.settings.set({
-        value: {
-          mode: 'fixed_servers',
-          rules: {
-            singleProxy: {
-              scheme: 'socks5',
-              host: proxyServer.host,
-              port: proxyServer.port,
+      chrome.proxy.settings.set(
+        {
+          value: {
+            mode: 'fixed_servers',
+            rules: {
+              singleProxy: {
+                scheme: 'socks5',
+                host: proxyServer.host,
+                port: proxyServer.port,
+              },
+              bypassList: [],
             },
-            bypassList: [],
           },
+          scope: 'regular',
         },
-        scope: 'regular',
-      });
+        () => {
+          updateIcon(enabled);
+        }
+      );
     } else {
-      chrome.proxy.settings.set({ value: { mode: 'direct' }, scope: 'regular' });
+      chrome.proxy.settings.set(
+        { value: { mode: 'direct' }, scope: 'regular' },
+        () => {
+          updateIcon(enabled);
+        }
+      );
     }
   }
   
   (async () => {
     const proxyEnabled = await getProxyEnabled();
     await setProxy(proxyEnabled);
+    updateIcon(proxyEnabled);
   })();
+  
   
   async function getProxyEnabled() {
     const result = await new Promise((resolve) => {
@@ -44,3 +62,5 @@
     return result;
   }
   
+
+

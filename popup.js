@@ -23,7 +23,7 @@ function setProxyEnabled(enabled) {
 
 function updateButton(enabled) {
   const button = document.getElementById('toggleProxy');
-  button.innerText = enabled ? 'Disable Proxy' : 'Enable Proxy';
+  button.innerText = enabled ? '禁用代理' : '开启代理';
 }
 
 (async () => {
