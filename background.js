@@ -1,4 +1,15 @@
-async function setProxy(enabled) {
+const proxyServer = {
+    host: 'AAAAA.com',
+    port: 12345,
+  };
+  
+  chrome.runtime.onMessage.addListener(async (message) => {
+    if (typeof message.proxyEnabled !== 'undefined') {
+      await setProxy(message.proxyEnabled);
+    }
+  });
+  
+  async function setProxy(enabled) {
     if (enabled) {
       chrome.proxy.settings.set({
         value: {
@@ -26,7 +37,7 @@ async function setProxy(enabled) {
   
   async function getProxyEnabled() {
     const result = await new Promise((resolve) => {
-      chrome.storage.local.get(['proxyEnabled'], (result) => {
+      chrome.storage.sync.get(['proxyEnabled'], (result) => {
         resolve(result.proxyEnabled || false);
       });
     });
