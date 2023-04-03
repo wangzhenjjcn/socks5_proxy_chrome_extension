@@ -1,25 +1,37 @@
 {
-  "manifest_version": 2,
-  "name": "SOCKS5 代理插件",
+  "manifest_version": 3,
+  "name": "Socks5代理插件",
   "version": "1.0",
-  "description": "一个简单的SOCKS5代理插件",
-  "icons": {
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "browser_action": {
-    "default_icon": {
-      "48": "icons/icon_gray.png"
-    },
-    "default_popup": "popup.html",
-    "default_title": "SOCKS5 代理插件"
-  },
+  "description": "一个简单的Socks5代理插件，根据规则列表自动选择代理域名",
   "permissions": [
     "proxy",
-    "storage",
-    "<all_urls>"
+    "storage"
   ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "options_page": "options.html",
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["update_rule_list.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bitbucket.org"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
 }

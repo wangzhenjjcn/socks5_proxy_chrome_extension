@@ -1,118 +1,67 @@
-let serverAddress;
-let serverPort;
-let username;
-let password;
+async function updateRuleList() {
+  const response = await fetch('https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt');
+  const ruleListText = await response.text();
+  const ruleList = ruleListText.split('\n').filter(line => line.trim() !== '');
 
-const fetchGfwList = async () => {
-  const response = await fetch(
-    "https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt"
-  );
-  const base64Data = await response.text();
-  const decodedData = atob(base64Data);
-  return decodedData.split("\n");
-};
-
-const updateProxyConfig = async () => {
-  const {
-    enableProxy,
-    serverAddress: newServerAddress,
-    serverPort: newServerPort,
-    username: newUsername,
-    password: newPassword,
-    enableRuleProxy,
-  } = await new Promise((resolve) => {
-    chrome.storage.local.get(
-      [
-        "enableProxy",
-        "serverAddress",
-        "serverPort",
-        "username",
-        "password",
-        "enableRuleProxy",
-      ],
-      resolve
-    );
+  chrome.storage.local.set({ruleList}, () => {
+    console.log('规则列表已更新');
   });
 
-  serverAddress = newServerAddress;
-  serverPort = newServerPort;
-  username = newUsername;
-  password = newPassword;
+  // 每天更新一次规则列表
+  setTimeout(updateRuleList, 24 * 60 * 60 * 1000);
+}
 
-  if (!enableProxy) {
-    await chrome.proxy.settings.set({
-      value: { mode: "direct" },
-      scope: "regular",
-    });
-    return;
-  }
+// 启动时更新规则列表
+updateRuleList();
 
-  const config = {
-    mode: "pac_script",
-    pacScript: {
-      data: `function FindProxyForURL(url, host) {
-        if (${enableRuleProxy ? "dnsDomainIs(host, 'bitbucket.org')" : "false"}) {
-          return 'SOCKS5 ${serverAddress}:${serverPort}';
+
+function applyProxySettings() {
+  chrome.storage.local.get(['proxyStatus', 'server', 'port', 'username', 'password'], result => {
+    const {proxyStatus, server, port, username, password} = result;
+
+    if (proxyStatus === 'on') {
+      const config = {
+        mode: 'pac_script',
+        pacScript: {
+          data: `function FindProxyForURL(url, host) {
+            const ruleList = ${JSON.stringify(result.ruleList)};
+            if (ruleList.some(rule => host.endsWith(rule))) {
+              return 'SOCKS5 ${server}:${port}${username && password ? `; PROXY ${server}:${port}` : ''}';
+            }
+            return 'DIRECT';
+          }`
         }
-        return 'DIRECT';
-      }`,
-    },
-  };
+      };
 
-  await chrome.proxy.settings.set({ value: config, scope: "regular" });
+      chrome.proxy.settings.set({value: config, scope: 'regular'}, () => {
+        console.log('代理设置已应用');
+      });
+    } else {
+      chrome.proxy.settings.set({value: {mode: 'direct'}, scope: 'regular'}, () => {
+        console.log('代理已关闭');
+      });
+    }
+  });
+}
 
-  if (enableRuleProxy) {
-    const gfwList = await fetchGfwList();
-    await chrome.storage.local.set({ gfwList });
-  }
-};
-
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === "updateProxyConfig") {
-    updateProxyConfig();
+// 在启动时和代理状态变更时应用代理设置
+chrome.runtime.onStartup.addListener(applyProxySettings);
+chrome.storage.onChanged.addListener(changes => {
+  if ('proxyStatus' in changes) {
+    applyProxySettings();
   }
 });
+
+function updateRuleList() {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'updateRuleList' }, response => {
+      if (response && response.success) {
+        console.log('规则列表已更新');
+      }
+    });
+  });
+}
 
 chrome.runtime.onInstalled.addListener(() => {
-  updateProxyConfig();
+  updateRuleList();
 });
-
-const checkDomainInGfwList = (domain, gfwList) => {
-  const matchPattern = (pattern, domain) => {
-    // 根据gfwList的规则进行匹配
-    // 实现匹配规则
-  };
-
-  for (const pattern of gfwList) {
-    if (matchPattern(pattern, domain)) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const handleProxyRequest = async (details) => {
-  const { enableProxy, enableRuleProxy, gfwList } = await new Promise((resolve) => {
-    chrome.storage.local.get(["enableProxy", "enableRuleProxy", "gfwList"], resolve);
-  });
-
-  if (!enableProxy) {
-    return { cancel: false };
-  }
-
-  const url = new URL(details.url);
-  const domain = url.hostname;
-
-
-  if (enableRuleProxy && checkDomainInGfwList(domain, gfwList)) {
-    return { type: "socks", host: serverAddress, port: serverPort };
-  } else {
-    return { type: "direct" };
-  }
-};
-
-chrome.webRequest.onBeforeRequest.addListener(
-  handleProxyRequest,
-  { urls: ["<all_urls>"] },
-  ["blocking"]
-);
