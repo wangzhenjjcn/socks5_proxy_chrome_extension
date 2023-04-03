@@ -1,16 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socks5 Proxy</title>
+<html>
+  <head>
+    <meta charset="utf-8" />
     <style>
-        body { width: 200px; }
-        button { width: 100%; }
+      /* 请添加您的自定义样式 */
     </style>
-</head>
-<body>
-    <button id="toggleProxy">Enable Proxy</button>
+  </head>
+  <body>
+    <h1>SOCKS5 代理设置</h1>
+    <form id="proxyForm">
+      <label>
+        服务器地址：
+        <input type="text" id="serverAddress" required />
+      </label>
+      <br />
+      <label>
+        端口：
+        <input type="number" id="serverPort" required />
+      </label>
+      <br />
+      <label>
+        用户名：
+        <input type="text" id="username" />
+      </label>
+      <br />
+      <label>
+        密码：
+        <input type="password" id="password" />
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" id="enableRuleProxy" />
+        开启规则代理
+      </label>
+      <br />
+      <label>
+        <input type="checkbox" id="enableProxy" />
+        开启代理
+      </label>
+      <br />      
+      <button type="submit">保存设置</button>
+    </form>
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>

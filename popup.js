@@ -1,32 +1,42 @@
-const proxyEnabledKey = 'proxyEnabled';
+document.addEventListener("DOMContentLoaded", async () => {
+  const enableProxy = document.getElementById("enableProxy");
+  const serverAddress = document.getElementById("serverAddress");
+  const serverPort = document.getElementById("serverPort");
+  const username = document.getElementById("username");
+  const password = document.getElementById("password");
+  const enableRuleProxy = document.getElementById("enableRuleProxy");
 
-document.getElementById('toggleProxy').addEventListener('click', async () => {
-  const proxyEnabled = await getProxyEnabled();
-  setProxyEnabled(!proxyEnabled);
-  updateButton(!proxyEnabled);
-});
+  chrome.storage.local.get(
+    [
+      "enableProxy",
+      "serverAddress",
+      "serverPort",
+      "username",
+      "password",
+      "enableRuleProxy",
+    ],
+    (config) => {
+      enableProxy.checked = config.enableProxy || false;
+      serverAddress.value = config.serverAddress || "";
+      serverPort.value = config.serverPort || "";
+      username.value = config.username || "";
+      password.value = config.password || "";
+      enableRuleProxy.checked = config.enableRuleProxy || false;
+    }
+  );
 
-async function getProxyEnabled() {
-  const result = await new Promise((resolve) => {
-    chrome.storage.local.get([proxyEnabledKey], (result) => {
-      resolve(result[proxyEnabledKey] || false);
+  document.getElementById("proxyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    chrome.storage.local.set({
+      enableProxy: enableProxy.checked,
+      serverAddress: serverAddress.value.trim(),
+      serverPort: parseInt(serverPort.value),
+      username: username.value.trim(),
+      password: password.value.trim(),
+      enableRuleProxy: enableRuleProxy.checked,
     });
+
+    chrome.runtime.sendMessage({ action: "updateProxyConfig" });
   });
-  return result;
-}
-
-function setProxyEnabled(enabled) {
-  chrome.storage.local.set({ [proxyEnabledKey]: enabled }, () => {
-    chrome.runtime.sendMessage({ proxyEnabled: enabled });
-  });
-}
-
-function updateButton(enabled) {
-  const button = document.getElementById('toggleProxy');
-  button.innerText = enabled ? '禁用代理' : '开启代理';
-}
-
-(async () => {
-  const proxyEnabled = await getProxyEnabled();
-  updateButton(proxyEnabled);
-})();
+});
