@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Socks5代理插件",
-  "version": "1.0",
-  "description": "一个简单的Socks5代理插件，根据规则列表自动选择代理域名",
+  "name": "WebProxyTech",
+  "version": "1.0.0",
+  "description": "世界那么大，让我们一起去看看！",
   "permissions": [
     "proxy",
     "storage"
@@ -10,9 +10,9 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     }
   },
   "options_page": "options.html",
@@ -22,16 +22,12 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["update_rule_list.js"],
-      "run_at": "document_start"
+      "js": ["content.js"]
     }
   ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bitbucket.org"
-  },
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   }
 }

@@ -1,37 +1,51 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>设置</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    label, input {
-      display: block;
-      margin-bottom: 10px;
-    }
-    button {
-      font-size: 16px;
-      padding: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>代理设置</title>
+    <style>
+        /* 在此处添加样式 */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+        }
+
+        input[type="checkbox"] {
+            margin-left: 5px;
+        }
+
+        button {
+            margin-top: 1em;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>设置</h1>
-  <form id="proxyForm">
+    <h1>代理设置</h1>
     <label for="server">服务器地址:</label>
-    <input type="text" id="server" required>
+    <input type="text" id="server" />
     <label for="port">端口:</label>
-    <input type="number" id="port" min="1" max="65535" required>
+    <input type="number" id="port" />
     <label for="username">用户名 (可选):</label>
-    <input type="text" id="username">
+    <input type="text" id="username" />
     <label for="password">密码 (可选):</label>
-    <input type="password" id="password">
-    <button type="submit">保存设置</button>
-  </form>
-  <script src="options.js"></script>
+    <input type="password" id="password" />
+    <label for="enableAutoProxy">启用规则代理:</label>
+    <input type="checkbox" id="enableAutoProxy" />
+    <button id="save">保存设置</button>
+    <script src="options.js"></script>
 </body>
+
 </html>
